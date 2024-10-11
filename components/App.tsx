@@ -5,24 +5,28 @@ import Rating from './Rating';
 import Genre from './Genre';
 import { getMovies } from '../api';
 import * as CONSTANTS from '../constants';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Container = styled.View`
   flex: 1;
+  padding-top: 50px;
+  background-color: #000;
 `;
 
 const PosterContainer = styled.View`
   width: ${CONSTANTS.ITEM_SIZE}px;
+  margin-top: ${CONSTANTS.TOP}px;
 `;
 
 const Poster = styled.View`
   margin-horizontal: ${CONSTANTS.SPACING}px;
   padding: ${CONSTANTS.SPACING * 2}px;
   align-items: center;
-  background-color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
 `;
 
-const PosterImage = styled.Image`  
+const PosterImage = styled.Image`
   width: 100%;
   height: ${CONSTANTS.ITEM_SIZE * 1.2}px;
   resize-mode: cover;
@@ -33,16 +37,75 @@ const PosterImage = styled.Image`
 const PosterTitle = styled.Text`
   font-family: Syne-Mono;
   font-size: 18px;
+  color: #fff;
 `;
 
 const PosterDescription = styled.Text`
   font-family: Syne-Mono;
   font-size: 12px;
+  color: #FFF;
 `;
 
 const DummyContainer = styled.View`
-width: ${CONSTANTS.SPACER_ITEM_SIZE}px;
-`
+  width: ${CONSTANTS.SPACER_ITEM_SIZE}px;
+`;
+
+const ContentContainer = styled.View`
+  position: absolute;
+  width: ${CONSTANTS.WIDTH}px;
+  height: ${CONSTANTS.BACKDROP_HEIGHT}px;
+`;
+
+const BackdropContainer = styled.View`
+  width: ${CONSTANTS.WIDTH}px;
+  height: ${CONSTANTS.BACKDROP_HEIGHT}px;
+  position: absolute;
+  overflow: hidden;
+`;
+
+const BackdropImage = styled.Image`
+  position: absolute;
+  width: ${CONSTANTS.WIDTH}px;
+  height: ${CONSTANTS.BACKDROP_HEIGHT}px;
+`;
+
+const Backdrop = ({ movies, scrollX }) => {
+  return (
+    <ContentContainer>
+        <FlatList
+        data={movies}
+        keyExtractor={(item) => `${item.key}-back`}
+        removeClippedSubviews={false}
+        contentContainerStyle={{ width: CONSTANTS.WIDTH, height: CONSTANTS.BACKDROP_HEIGHT }}
+        renderItem={({ item, index }) => {
+          if (!item.backdropPath) {
+            return null;
+          }
+
+          const translateX = scrollX.interpolate({
+            inputRange: [(index - 1) * CONSTANTS.ITEM_SIZE, index * CONSTANTS.ITEM_SIZE],
+            outputRange: [0, CONSTANTS.WIDTH],
+          });
+
+          return (
+            <BackdropContainer as={Animated.View} style={{ transform: [{ translateX }] }}>
+              <BackdropImage source={{ uri: item.backdropPath }} />
+            </BackdropContainer>
+          );
+        }}
+      />
+      <LinearGradient
+        colors={['rgba(0, 0, 0, 0)', 'black']}
+        style={{
+          height: CONSTANTS.BACKDROP_HEIGHT,
+          width: CONSTANTS.WIDTH,
+          position: 'absolute',
+          bottom: 0,
+        }}
+      />
+    </ContentContainer>
+  );
+};
 
 export default function App() {
   const [movies, setMovies] = useState([]);
@@ -76,6 +139,7 @@ export default function App() {
 
   return (
     <Container>
+      <Backdrop movies={movies} scrollX={scrollX} />
       <StatusBar />
       <Animated.FlatList
         data={movies}
