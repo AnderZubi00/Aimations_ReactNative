@@ -37,7 +37,7 @@ const PosterImage = styled.Image`
 const PosterTitle = styled.Text`
   font-family: Syne-Mono;
   font-size: 18px;
-  color: #fff;
+  color: #FFF;
 `;
 
 const PosterDescription = styled.Text`
@@ -112,11 +112,6 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
 
   const scrollX = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    console.log('scrollX:', scrollX);
-  }, []);
-  
 
   useEffect(() => {
     getMovies()
